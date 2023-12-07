@@ -58,6 +58,12 @@ public interface AccountDao {
     List<Account> getByMaxValue(int maxValue);
 
     /**
+     * this returns a list of all the accounts in the database that have or does not have garage
+     * @param garage the existence of garage; Yes or No
+     * @return a list of accounts that has or does not have garage
+     */
+    List<Account> getByGarage(String garage);
+    /**
      * this returns a list of all the accounts in the database
      *
      * @return a list of all the accounts in the database
@@ -76,7 +82,7 @@ public interface AccountDao {
      * @param maxValue the maximum value we are looking for
      * @return a list of accounts that passes every one of the search methods
      */
-    List<Account> searchByCriteria(int acctNumber, String address, String neighborhood, String assessmentClass, int minValue, int maxValue);
+    List<Account> searchByCriteria(int acctNumber, String address, String neighborhood, String assessmentClass, int minValue, int maxValue, String garage);
 
     /**
      * this returns a list of all the assessment classes that are in the database
@@ -84,4 +90,5 @@ public interface AccountDao {
      * @return list of assessment class strings
      */
     List<String> getAssessmentClassList();
+
 }

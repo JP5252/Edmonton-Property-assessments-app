@@ -62,6 +62,21 @@ public class CsvAccountDAO implements AccountDao{
     }
 
     /**
+     * this returns a list of all the accounts in the database that have or does not have garage
+     * @param garage the existence of garage; Yes or No
+     * @return a list of accounts that has or does not have garage
+     */
+    @Override
+    public List<Account> getByGarage(String garage) {
+        List<Account> hasGarage = new ArrayList<>();
+        for (Account account : accountMap.values()) {
+            if (account.getGarage().equals(garage)){
+                hasGarage.add(account);
+            }
+        }
+        return hasGarage;
+    }
+    /**
      * this returns a list of account objects that have the assessment class we are searching in any of their assessment
      * classes
      *
@@ -116,6 +131,8 @@ public class CsvAccountDAO implements AccountDao{
         return belowMax;
     }
 
+
+
     /**
      * this returns a list of all the accounts in the database
      *
@@ -143,7 +160,7 @@ public class CsvAccountDAO implements AccountDao{
      * @return a list of accounts that passes every one of the search methods
      */
     @Override
-    public List<Account> searchByCriteria(int acctNumber, String address, String neighborhood, String assessmentClass, int minValue, int maxValue) {
+    public List<Account> searchByCriteria(int acctNumber, String address, String neighborhood, String assessmentClass, int minValue, int maxValue, String garage) {
         List<Account> results = new ArrayList<>();
 
         if (acctNumber != 0) {
@@ -173,6 +190,16 @@ public class CsvAccountDAO implements AccountDao{
                     results.addAll(byNeighborhood);
                 } else {
                     results.removeIf(account -> byNeighborhood.stream().noneMatch(a -> a.getAcctNum() == account.getAcctNum()));
+                }
+            }
+        }
+        if (garage != null && !garage.isEmpty()) {
+            List<Account> byGarage = getByGarage(garage);
+            if (!byGarage.isEmpty()) {
+                if (results.isEmpty()) {
+                    results.addAll(byGarage);
+                } else{
+                    results.removeIf(account -> byGarage.stream().noneMatch(a -> a.getAcctNum() == account.getAcctNum()));
                 }
             }
         }

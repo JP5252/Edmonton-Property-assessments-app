@@ -29,6 +29,7 @@ public class ApiAccountDAO implements AccountDao{
         return accountMap.get(acctNumber);
     }
 
+
     /**
      * this  returns a list of account objects that have the address string somewhere within their address
      *
@@ -59,6 +60,7 @@ public class ApiAccountDAO implements AccountDao{
 
         return new ArrayList<>(accountMap.values());
     }
+
 
     /**
      * this returns a list of account objects that have the assessment class we are searching in any of their assessment
@@ -112,6 +114,28 @@ public class ApiAccountDAO implements AccountDao{
     }
 
     /**
+     * this returns a list of all the accounts in the database that have or does not have garage
+     * @param garage the existence of garage; Yes or No
+     * @return a list of accounts that has or does not have garage
+     */
+
+    @Override
+    public List<Account> getByGarage(String garage) {
+        if (garage.equals("Yes")){
+            garage = "Y";
+        }
+        if (garage.equals("No")){
+            garage = "N";
+        }
+        String query = endpoint + "?garage=" + garage;
+        String jsonString = callAPI(query);
+        ParseJSON parseJSON = new ParseJSON(jsonString);
+        this.accountMap = parseJSON.getAccountMap();
+
+        return new ArrayList<>(accountMap.values());
+    }
+
+    /**
      * this returns a list of all the accounts in the database
      *
      * @return a list of all the accounts in the database
@@ -149,7 +173,7 @@ public class ApiAccountDAO implements AccountDao{
     }
 
     /**
-     * this iterates through the other searches in accountDAO and returns a lit of accounts that pass all of the
+     * this iterates through the other searches in accountDAO and returns a lit of accounts that pass all the
      * search criteria
      *
      * @param acctNumber the account number we are looking for
@@ -158,10 +182,11 @@ public class ApiAccountDAO implements AccountDao{
      * @param assessmentClass the assessment class we are looking for
      * @param minValue the minimum value we are looking for
      * @param maxValue the maximum value we are looking for
+     * @param garage existence of garage
      * @return a list of accounts that passes every one of the search methods
      */
     @Override
-    public List<Account> searchByCriteria(int acctNumber, String address, String neighborhood, String assessmentClass, int minValue, int maxValue) {
+    public List<Account> searchByCriteria(int acctNumber, String address, String neighborhood, String assessmentClass, int minValue, int maxValue, String garage) {
         List<Account> results = new ArrayList<>();
 
         if (acctNumber != 0) {
@@ -195,6 +220,7 @@ public class ApiAccountDAO implements AccountDao{
             }
         }
 
+
         if (assessmentClass != null && !assessmentClass.isEmpty()) {
             List<Account> byAssessmentClass = getByAssessmentClass(assessmentClass);
             if (!byAssessmentClass.isEmpty()) {
@@ -207,6 +233,18 @@ public class ApiAccountDAO implements AccountDao{
                 }
             }
         }
+
+        if (garage != null && !garage.isEmpty()) {
+            List<Account> byGarage = getByGarage(garage);
+            if(!byGarage.isEmpty()){
+                if (results.isEmpty()) {
+                    results.addAll(byGarage);
+                } else{
+                    results.removeIf(account -> byGarage.stream().noneMatch(a -> a.getAcctNum() == account.getAcctNum()));
+                }
+            }
+        }
+
 
         if (minValue != 0) {
             List<Account> byMinValue = getByMinValue(minValue);
