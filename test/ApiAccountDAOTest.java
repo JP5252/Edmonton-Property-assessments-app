@@ -63,7 +63,7 @@ class ApiAccountDAOTest {
 
     @Test
     void searchByCriteria() {
-        List<Account> accounts = accountDao.searchByCriteria(1017870, "44 willow", "westridge", "Residential", 50000, 600000);
+        List<Account> accounts = accountDao.searchByCriteria(1017870, "44 willow", "westridge", "Residential", 50000, 600000, "Y");
         assertNotNull(accounts);
         assertFalse(accounts.isEmpty());
     }

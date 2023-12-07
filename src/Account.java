@@ -15,6 +15,7 @@ public class Account {
     private final NbrHood nbrHood;
     private Assessment assessment;
     private Location location;
+    private String garage;
 
     /**
      * this constructs the data class out of the given csv line.
@@ -45,6 +46,7 @@ public class Account {
 
         // send suite, houseNum, streetName and garage to address
         this.address = new Address(lineData.get(1), lineData.get(2), lineData.get(3), lineData.get(4));
+        this.garage = lineData.get(4).strip();
 
         // send nbrhoodID, nbrhood and ward to NbrHood
         this.nbrHood = new NbrHood(lineData.get(5), lineData.get(6), lineData.get(7));
@@ -112,6 +114,16 @@ public class Account {
      */
     public int getAcctNum() {
         return this.acctNum;
+    }
+
+    /**
+     * gets the garage from the data
+     * @return Yes the property has a garage; no otherwise
+     */
+    public String getGarage() {
+        if (garage.equals("Y")) return "Yes";
+        if (garage.equals("N")) return "No";
+        return garage;
     }
 
     /**

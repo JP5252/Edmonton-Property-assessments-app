@@ -30,6 +30,8 @@ public class PropertyAssessmentApp extends Application {
     private ComboBox<String> assessmentClassComboBox = new ComboBox<>();
     private TextField minValueField = new TextField();
     private TextField maxValueField = new TextField();
+    private ComboBox<String> garageComboBox = new ComboBox<>();
+
 
     /**
      * this launches our application
@@ -60,7 +62,7 @@ public class PropertyAssessmentApp extends Application {
 
         // set width of assessment class combobox
         assessmentClassComboBox.setPrefWidth(200);
-
+        garageComboBox.setPrefWidth(200);
         // Create a button to read data
         Button readDataButton = new Button("Read Data");
         readDataButton.setOnAction(e -> handleReadDataButtonClick());
@@ -74,6 +76,7 @@ public class PropertyAssessmentApp extends Application {
         Label addressLabel =  new Label("Address (# Suite # House Street):");
         Label neighborhoodLabel = new Label("Neighborhood:");
         Label assessmentClassLabel = new Label("Assessment Class:");
+        Label garageLabel = new Label("Garage:");
         Label ValueLabel = new Label("Assessed Value Range:");
 
         //create a search button
@@ -92,6 +95,7 @@ public class PropertyAssessmentApp extends Application {
                 addressLabel, addressField,
                 neighborhoodLabel, neighborhoodField,
                 assessmentClassLabel, assessmentClassComboBox,
+                garageLabel, garageComboBox,
                 ValueLabel, new HBox(minValueField, maxValueField),
                 new HBox(searchButton, resetButton)
         );
@@ -118,7 +122,11 @@ public class PropertyAssessmentApp extends Application {
         addressColumn.setPrefWidth(150);
         addressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
 
-        TableColumn<Account, String> valueColumn = new TableColumn<>("Value");
+        TableColumn<Account, String> garageColumn = new TableColumn<>("Garage");
+        garageColumn.setPrefWidth(120);
+        garageColumn.setCellValueFactory(new PropertyValueFactory<>("garage"));
+
+        TableColumn<Account, String> valueColumn = new TableColumn<>("fValue");
         valueColumn.setPrefWidth(70);
         valueColumn.setCellValueFactory(new PropertyValueFactory<>("formattedValue"));
 
@@ -134,8 +142,11 @@ public class PropertyAssessmentApp extends Application {
         locationColumn.setPrefWidth(260);
         locationColumn.setCellValueFactory(new PropertyValueFactory<>("location"));
 
+
+
+
         // Add columns to the table
-        tableView.getColumns().addAll(acctNumColumn, addressColumn, valueColumn, assessmentColumn, nbrHoodColumn, locationColumn);
+        tableView.getColumns().addAll(acctNumColumn, addressColumn, garageColumn, valueColumn, assessmentColumn, nbrHoodColumn, locationColumn);
 
         BorderPane borderPane = new BorderPane();
         borderPane.setLeft(leftBox);
@@ -185,6 +196,7 @@ public class PropertyAssessmentApp extends Application {
 
             // Update the assessment class ComboBox
             updateAssessmentClassComboBox();
+            updateGarageComboBox();
         } else {
             showNoDataSourcePopup();
         }
@@ -199,6 +211,14 @@ public class PropertyAssessmentApp extends Application {
         assessmentClassComboBox.getItems().clear();
         assessmentClassComboBox.getItems().addAll(assessmentClassList);
     }
+    /**
+     * this method updates the garage status in the garage combobox with Yes and No
+     * in the selected data set
+     */
+    private void updateGarageComboBox(){
+        garageComboBox.getItems().clear();
+        garageComboBox.getItems().addAll("Yes", "No");
+    }
 
     /**
      * this method handles when the search button is clicked sending all the entered data to searchByCriteria in the
@@ -209,11 +229,12 @@ public class PropertyAssessmentApp extends Application {
         String address = addressField.getText().trim();
         String neighborhood = neighborhoodField.getText().trim();
         String assessmentClass = assessmentClassComboBox.getValue();
+        String garage = garageComboBox.getValue();
         int minValue = parseTextField(minValueField);
         int maxValue = parseTextField(maxValueField);
 
         // Call searchByCriteria method
-        List<Account> searchResults = accountDao.searchByCriteria(acctNumber, address, neighborhood, assessmentClass, minValue, maxValue);
+        List<Account> searchResults = accountDao.searchByCriteria(acctNumber, address, neighborhood, assessmentClass, minValue, maxValue, garage);
         if (searchResults.isEmpty()) {
             // Display a popup if there are no search results
             showNoResultsPopup();
@@ -233,6 +254,7 @@ public class PropertyAssessmentApp extends Application {
         addressField.clear();
         neighborhoodField.clear();
         assessmentClassComboBox.setValue(null);
+        garageComboBox.setValue(null);
         minValueField.clear();
         maxValueField.clear();
 

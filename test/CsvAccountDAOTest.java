@@ -63,7 +63,7 @@ class CsvAccountDAOTest {
 
     @Test
     void searchByCriteria() {
-        List<Account> accounts = accountDao.searchByCriteria(1097492, "92 street", "lago lindo", "Residential", 50000, 600000);
+        List<Account> accounts = accountDao.searchByCriteria(1097492, "92 street", "lago lindo", "Residential", 50000, 600000, "Y");
         assertNotNull(accounts);
         assertFalse(accounts.isEmpty());
     }
