@@ -61,6 +61,22 @@ public class ApiAccountDAO implements AccountDao{
         return new ArrayList<>(accountMap.values());
     }
 
+    /**
+     * this returns a list of account objects from the database if the given ward is the ward
+     * of the property assessment.
+     *
+     * @param ward the ward we are looking for
+     * @return a list of account objects that contain the given ward
+     */
+    @Override
+    public List<Account> getByWard(String ward) {
+        String query = endpoint + "?ward=" + ward.toLowerCase().replace(" ", "%20") + "%20Ward";
+        String jsonString = callAPI(query);
+        ParseJSON parseJSON = new ParseJSON(jsonString);
+        this.accountMap = parseJSON.getAccountMap();
+
+        return new ArrayList<>(accountMap.values());
+    }
 
     /**
      * this returns a list of account objects that have the assessment class we are searching in any of their assessment
@@ -118,7 +134,6 @@ public class ApiAccountDAO implements AccountDao{
      * @param garage the existence of garage; Yes or No
      * @return a list of accounts that has or does not have garage
      */
-
     @Override
     public List<Account> getByGarage(String garage) {
         if (garage.equals("Yes")){
@@ -179,6 +194,7 @@ public class ApiAccountDAO implements AccountDao{
      * @param acctNumber the account number we are looking for
      * @param address the address we are looking for
      * @param neighborhood the neighborhood we are looking for
+     * @param ward the ward we are looking for
      * @param assessmentClass the assessment class we are looking for
      * @param minValue the minimum value we are looking for
      * @param maxValue the maximum value we are looking for
@@ -186,7 +202,7 @@ public class ApiAccountDAO implements AccountDao{
      * @return a list of accounts that passes every one of the search methods
      */
     @Override
-    public List<Account> searchByCriteria(int acctNumber, String address, String neighborhood, String assessmentClass, int minValue, int maxValue, String garage) {
+    public List<Account> searchByCriteria(int acctNumber, String address, String neighborhood, String assessmentClass, int minValue, int maxValue, String garage, String ward) {
         List<Account> results = new ArrayList<>();
 
         if (acctNumber != 0) {
@@ -220,6 +236,16 @@ public class ApiAccountDAO implements AccountDao{
             }
         }
 
+        if (ward != null && !ward.isEmpty()) {
+            List<Account> byWard = getByWard(ward);
+            if (!byWard.isEmpty()) {
+                if (results.isEmpty()) {
+                    results.addAll(byWard);
+                } else {
+                    results.removeIf(account -> byWard.stream().noneMatch(a -> a.getAcctNum() == account.getAcctNum()));
+                }
+            }
+        }
 
         if (assessmentClass != null && !assessmentClass.isEmpty()) {
             List<Account> byAssessmentClass = getByAssessmentClass(assessmentClass);

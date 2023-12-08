@@ -33,6 +33,15 @@ public interface AccountDao {
     List<Account> getByNeighborhood(String neighborhood);
 
     /**
+     * this returns a list of account objects from the database if the given ward is the ward
+     * of the property assessment.
+     *
+     * @param ward the ward we are looking for
+     * @return a list of account objects that contain the given ward
+     */
+    List<Account> getByWard(String ward);
+
+    /**
      * this returns a list of accounts fromm the database if the given assessment class is any of the three possible
      * assessment classes for the property assessment
      *
@@ -82,7 +91,7 @@ public interface AccountDao {
      * @param maxValue the maximum value we are looking for
      * @return a list of accounts that passes every one of the search methods
      */
-    List<Account> searchByCriteria(int acctNumber, String address, String neighborhood, String assessmentClass, int minValue, int maxValue, String garage);
+    List<Account> searchByCriteria(int acctNumber, String address, String neighborhood, String assessmentClass, int minValue, int maxValue, String garage, String ward);
 
     /**
      * this returns a list of all the assessment classes that are in the database

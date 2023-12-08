@@ -62,6 +62,24 @@ public class CsvAccountDAO implements AccountDao{
     }
 
     /**
+     * this returns a list of account objects from the database if the given ward is the ward
+     * of the property assessment.
+     *
+     * @param ward the ward we are looking for
+     * @return a list of account objects that contain the given ward
+     */
+    @Override
+    public List<Account> getByWard(String ward) {
+        List<Account> inWard = new ArrayList<>();
+        for (Account account : accountMap.values()) {
+            if (account.getNbrHood().getWard().contains(ward.toLowerCase())) {
+                inWard.add(account);
+            }
+        }
+        return inWard;
+    }
+
+    /**
      * this returns a list of all the accounts in the database that have or does not have garage
      * @param garage the existence of garage; Yes or No
      * @return a list of accounts that has or does not have garage
@@ -154,13 +172,15 @@ public class CsvAccountDAO implements AccountDao{
      * @param acctNumber the account number we are looking for
      * @param address the address we are looking for
      * @param neighborhood the neighborhood we are looking for
+     * @param ward the ward we are looking for
      * @param assessmentClass the assessment class we are looking for
      * @param minValue the minimum value we are looking for
      * @param maxValue the maximum value we are looking for
+     * @param garage existence of garage
      * @return a list of accounts that passes every one of the search methods
      */
     @Override
-    public List<Account> searchByCriteria(int acctNumber, String address, String neighborhood, String assessmentClass, int minValue, int maxValue, String garage) {
+    public List<Account> searchByCriteria(int acctNumber, String address, String neighborhood, String assessmentClass, int minValue, int maxValue, String garage, String ward) {
         List<Account> results = new ArrayList<>();
 
         if (acctNumber != 0) {
@@ -193,6 +213,18 @@ public class CsvAccountDAO implements AccountDao{
                 }
             }
         }
+
+        if (ward != null && !ward.isEmpty()) {
+            List<Account> byWard = getByWard(ward);
+            if (!byWard.isEmpty()) {
+                if (results.isEmpty()) {
+                    results.addAll(byWard);
+                } else {
+                    results.removeIf(account -> byWard.stream().noneMatch(a -> a.getAcctNum() == account.getAcctNum()));
+                }
+            }
+        }
+
         if (garage != null && !garage.isEmpty()) {
             List<Account> byGarage = getByGarage(garage);
             if (!byGarage.isEmpty()) {

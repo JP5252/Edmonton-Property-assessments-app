@@ -16,6 +16,7 @@ public class Account {
     private Assessment assessment;
     private Location location;
     private String garage;
+    private String ward;
 
     /**
      * this constructs the data class out of the given csv line.
