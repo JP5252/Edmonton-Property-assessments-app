@@ -12,6 +12,13 @@ import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,6 +39,7 @@ public class PropertyAssessmentApp extends Application {
     private TextField minValueField = new TextField();
     private TextField maxValueField = new TextField();
     private ComboBox<String> garageComboBox = new ComboBox<>();
+    private TextField csvFilenameField = new TextField();
 
 
     /**
@@ -84,6 +92,12 @@ public class PropertyAssessmentApp extends Application {
         Label assessmentClassLabel = new Label("Assessment Class:");
         Label garageLabel = new Label("Garage:");
         Label ValueLabel = new Label("Assessed Value Range:");
+        Label csvLabel = new Label("Write to CSV");
+        csvLabel.setStyle("-fx-font-weight: bold;");
+        Label csvFilenameLabel = new Label("CSV Filename");
+
+
+
 
         //create a search button
         Button searchButton = new Button("Search");
@@ -94,6 +108,17 @@ public class PropertyAssessmentApp extends Application {
         Button resetButton = new Button("Reset");
         resetButton.setOnAction(e -> handleResetButtonClick());
         resetButton.setPrefWidth(100);
+
+        //create a "Write to CSV" button
+        Button csvButton = new Button("Write to CSV");
+        csvButton.setOnAction(e -> {
+            try {
+                handleCsvButtonClick();
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        csvButton.setPrefWidth(200);
 
         // Create a VBox for search criteria
         VBox searchCriteriaBox = new VBox(
@@ -109,8 +134,15 @@ public class PropertyAssessmentApp extends Application {
         );
         searchCriteriaBox.setPadding(new Insets(5));
 
+        // vbox for csv writing
+        VBox csvInputBox = new VBox(
+                csvFilenameLabel, csvFilenameField,
+                csvButton
+        );
+        csvInputBox.setPadding(new Insets(5));
+
         VBox leftBox = new VBox(selectDataLabel, dataSourceComboBox, readDataButton, new Separator(),
-                findPropertyAsessmentLabel, searchCriteriaBox);
+                findPropertyAsessmentLabel, searchCriteriaBox, new Separator(), csvLabel, csvInputBox);
         leftBox.setAlignment(Pos.CENTER);
         leftBox.setSpacing(10);
         leftBox.setPrefWidth(200);
@@ -267,6 +299,7 @@ public class PropertyAssessmentApp extends Application {
         garageComboBox.setValue(null);
         minValueField.clear();
         maxValueField.clear();
+        csvFilenameField.clear();
 
         // Reload all data
         handleReadDataButtonClick();
@@ -325,6 +358,43 @@ public class PropertyAssessmentApp extends Application {
             return Integer.parseInt(textField.getText().trim());
         } catch (NumberFormatException e) {
             return 0; // Default value if parsing fails
+        }
+    }
+
+
+    /**
+     * this method handles the "write to csv" button and creates a csv file from entries that are in
+     * the tableview and using a filename given from the textfield
+     */
+    private void handleCsvButtonClick() {
+        String filename = csvFilenameField.getText().trim().replace(" ","_") + ".csv";
+        List<List> csv = new ArrayList<>();
+        for (int i = 0; i < tableView.getItems().size(); i++) {
+            Account account = tableView.getItems().get(i);
+            csv.add((new ArrayList<>()));
+            csv.get(i).add(account.getAcctNum());
+            csv.get(i).add(account.getAddress());
+            csv.get(i).add(account.getGarage());
+            csv.get(i).add(account.getValue());
+            csv.get(i).add(account.getAssessment());
+            csv.get(i).add(account.getNbrHood());
+            csv.get(i).add(account.getLocation());
+        }
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+            for (int i = 0; i < csv.size(); i++) {
+//            for (int j=0; j< csv.get(i).size(); j++){
+//                System.out.println(csv.get(i).get(j));
+//            }
+                writer.write(csv.get(i).toString());
+                writer.newLine();
+            }
+            writer.flush();
+            writer.close();
+        } catch (FileAlreadyExistsException exe) {
+            System.err.println("The file " + filename + " already exists.");
+        } catch (IOException exe) {
+            System.out.println("Cannot create file");
         }
     }
 }
